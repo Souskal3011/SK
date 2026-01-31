@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Souskal Tech Hub</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background: radial-gradient(circle at top, #001a33, #000814);
+  color:#00bfff;
+  text-align:center;
+}
+h1{ text-shadow:0 0 15px #00bfff; }
+
+.section{
+  border:2px solid #00bfff;
+  margin:15px;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 0 15px #00bfff;
+}
+
+button{
+  padding:8px 15px;
+  margin:5px;
+  background:black;
+  color:#00bfff;
+  border:1px solid #00bfff;
+  border-radius:8px;
+}
+button:hover{ box-shadow:0 0 10px #00bfff; }
+
+canvas{ margin-top:10px; }
+</style>
+</head>
+<body>
+
+<h1>🌍 SOUSKAL TECH HUB</h1>
+<div id="clock"></div>
+
+<div class="section">
+<h2>🎵 Music Visualizer</h2>
+<input type="file" id="fileInput" accept="audio/*">
+<button onclick="playMusic()">Play</button>
+<button onclick="pauseMusic()">Pause</button>
+<canvas id="viz" width="400" height="150"></canvas>
+</div>
+
+<div class="section">
+<h2>🎮 3D Game Engine Start</h2>
+<div id="game3d"></div>
+</div>
+
+<div class="section">
+<h2>⚽ Sport Search</h2>
+<input id="sportBox" placeholder="voetbal, basket...">
+<button onclick="searchSport()">Zoek</button>
+<input id="teamBox" placeholder="Club naam">
+<button onclick="getScore(teamBox.value)">Check Club</button>
+<div id="sportOut"></div>
+</div>
+
+<div class="section">
+<h2>🤖 AI Center</h2>
+<button onclick="askAI('game')">Game AI</button>
+<button onclick="askAI('search')">Search AI</button>
+<button onclick="askAI('music')">Music AI</button>
+<button onclick="askAI('help')">Help AI</button>
+<div id="aiOut"></div>
+</div>
+
+<script>
+// CLOCK
+setInterval(()=>clock.innerText="🕒 "+new Date().toLocaleTimeString(),1000);
+
+// 🎵 MUSIC VISUALIZER
+let audio,ctx,analyser,data;
+const canvas=document.getElementById("viz");
+const ctx2=canvas.getContext("2d");
+
+fileInput.onchange=e=>{
+ audio=new Audio(URL.createObjectURL(e.target.files[0]));
+ ctx=new AudioContext();
+ let src=ctx.createMediaElementSource(audio);
+ analyser=ctx.createAnalyser();
+ src.connect(analyser);
+ analyser.connect(ctx.destination);
+ data=new Uint8Array(analyser.frequencyBinCount);
+};
+
+function playMusic(){ if(!audio) return; audio.play(); visualize(); }
+function pauseMusic(){ if(audio) audio.pause(); }
+
+function visualize(){
+ analyser.getByteFrequencyData(data);
+ ctx2.clearRect(0,0,canvas.width,canvas.height);
+ let barWidth=canvas.width/data.length;
+ for(let i=0;i<data.length;i+=5){
+   let h=data[i]/2;
+   ctx2.fillStyle="rgb(0,"+(h+150)+",255)";
+   ctx2.fillRect(i*barWidth,canvas.height-h,barWidth-2,h);
+ }
+ requestAnimationFrame(visualize);
+}
+
+// 🎮 3D ENGINE
+let scene=new THREE.Scene();
+let camera=new THREE.PerspectiveCamera(75,400/300,0.1,1000);
+let renderer=new THREE.WebGLRenderer();
+renderer.setSize(400,300);
+document.getElementById("game3d").appendChild(renderer.domElement);
+
+let cube=new THREE.Mesh(
+ new THREE.BoxGeometry(),
+ new THREE.MeshBasicMaterial({color:0x00bfff})
+);
+scene.add(cube);
+camera.position.z=3;
+
+function animate(){
+ requestAnimationFrame(animate);
+ cube.rotation.x+=0.01;
+ cube.rotation.y+=0.01;
+ renderer.render(scene,camera);
+}
+animate();
+
+// SPORTS
+function searchSport(){
+ let s=sportBox.value.toLowerCase();
+ sportOut.innerText = s.includes("voetbal")?"⚽ Voetbal info":
+ s.includes("basket")?"🏀 Basket info":
+ s.includes("handbal")?"🤾 Handbal info":"Geen data";
+}
+
+async function getScore(team){
+ let res=await fetch("https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t="+team);
+ let data=await res.json();
+ if(data.teams) sportOut.innerText="League: "+data.teams[0].strLeague;
+}
+
+// AI
+const AIs={
+ game:"🎮 Laten we een 3D map bouwen.",
+ search:"🔍 Ik zoek informatie.",
+ music:"🎵 Ik stel een playlist samen.",
+ help:"🧠 Ik help stap voor stap."
+};
+function askAI(t){ aiOut.innerText=AIs[t]; }
+
+</script>
+</body>
+</html>
+
+</html>
