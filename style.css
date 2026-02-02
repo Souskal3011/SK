@@ -1,0 +1,34 @@
+#timeOrb{
+ position:fixed;
+ top:50px;
+ left:50px;
+ width:60px;
+ height:60px;
+ border-radius:50%;
+ background:rgba(0,191,255,0.15);
+ backdrop-filter:blur(10px);
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:22px;
+ box-shadow:0 0 20px #00bfff;
+ transition:0.2s;
+ cursor:pointer;
+ z-index:999;
+}
+
+#timeOrb:hover{
+ transform:scale(1.2);
+ box-shadow:0 0 40px #00ffff;
+}
+
+#timeInfo{
+ position:fixed;
+ top:120px;
+ left:50px;
+ font-size:14px;
+ opacity:0;
+ transition:0.3s;
+ color:#00ffff;
+ text-shadow:0 0 10px #00ffff;
+}
